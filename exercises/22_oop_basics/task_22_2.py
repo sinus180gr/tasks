@@ -44,3 +44,38 @@ self._write_line(line)
 
 Он не должен делать ничего другого.
 """
+from telnetlib import Telnet
+import time
+
+class CiscoTelnet:
+	def __init__(self, connect_dict):
+		self.tn = Telnet(connect_dict[ip])
+		self.tn.read_until(b"login: ")
+		self._write_line(connect_dict[username])
+		self.tn.read_until(b"Password: ")
+		self._write_line(connect_dict[password])
+		self.tn._write_line('enable')
+		self.tn.read_until(b"Password: ")
+		self._write_line(connect_dict[secret])
+		time.sleep(1)
+		self.tn.read_very_eager()
+	
+	def _write_line(self, line):
+		self.tn.write(line.encode("ascii") + b"\n")
+	
+	def send_show_command(self, line):
+		self._write_line(line)
+		time.sleep(1)
+		command_output = self.tn.read_very_eager().decode("ascii")
+		return command_outpu	
+
+r1_params = {
+ 			'ip': '192.168.100.1',
+ 			'username': 'cisco',
+ 			'password': 'cisco',
+ 			'secret': 'cisco'
+ 			}
+
+if __name__ == '__main__':
+
+	r1 = CiscoTelnet(r1_params)
